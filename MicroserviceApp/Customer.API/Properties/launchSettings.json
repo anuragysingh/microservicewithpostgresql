@@ -17,10 +17,10 @@
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
     },
-    "WebApplication1": {
+    "CustomerAPI": {
       "commandName": "Project",
       "launchBrowser": true,
-      "launchUrl": "weatherforecast",
+      "launchUrl": "customerapi",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       },
