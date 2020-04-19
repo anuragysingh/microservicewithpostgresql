@@ -20,13 +20,20 @@ namespace Customer.API.Controllers
         [HttpGet]
         public IActionResult GetData()
         {
-            return Ok("ok");
+            return Ok(this._user.GetAllUsers());
+        }
+
+        [HttpGet("/address")]
+        public IActionResult GetFullAdddress()
+        {
+            return Ok(this._user.GetFullUserDetails(1234));
         }
 
         [HttpPost]
         public async Task<IActionResult> AddUser()
         {
             this._user.AddCustomer();
+            this._user.AddAddress();
             await this._unitOfWork.Complete();
             return Ok("ok");
         }

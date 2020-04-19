@@ -9,5 +9,6 @@ namespace Customer.API.Persistence
         { }
 
         public DbSet<User> Users { get; set; }
+        public DbSet<Address> Address { get; set; }
     }
 }
