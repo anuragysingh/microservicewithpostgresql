@@ -10,3 +10,11 @@ Swagger:
 Swashbuckle.AspNetCore
 
 StyleCop.Analyzers - for code documentation and correctness
+
+
+Microsoft.AspNetCore.Mvc.Api.Analyzers - for web api analysis
+
+In project enable this
+<PropertyGroup>
+ <IncludeOpenAPIAnalyzers>true</IncludeOpenAPIAnalyzers>
+</PropertyGroup>
