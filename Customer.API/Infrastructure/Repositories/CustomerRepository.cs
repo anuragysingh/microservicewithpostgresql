@@ -3,6 +3,7 @@ using Customer.API.Core.Model;
 using Customer.API.ViewModel;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace Customer.API.Persistence
 {
@@ -39,7 +40,7 @@ namespace Customer.API.Persistence
             return "added";
         }
 
-        public List<User> GetAllUsers()
+        public async Task<List<User>> GetAllUsersAsync()
         {
             return this._dbContext.Users.OrderBy(name=>name.Name).ToList();
         }

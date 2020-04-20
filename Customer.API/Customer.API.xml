@@ -1,0 +1,53 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Customer.API</name>
+    </assembly>
+    <members>
+        <member name="T:Customer.API.Controllers.CustomerController">
+            <summary>
+            Initializes a new instance of the <see cref="T:Customer.API.Controllers.CustomerController"/> class.
+            </summary>
+        </member>
+        <member name="M:Customer.API.Controllers.CustomerController.#ctor(Customer.API.Core.IUser,Customer.API.Core.IUnitOfWork)">
+            <summary>
+            Initializes a new instance of the <see cref="T:Customer.API.Controllers.CustomerController"/> class.
+            </summary>
+            <param name="user">user detail.</param>
+            <param name="unitOfWork">unit of work detail.</param>
+        </member>
+        <member name="M:Customer.API.Controllers.CustomerController.GetData">
+            <summary>
+            Get data for all users.
+            </summary>
+            <returns>Ok.</returns>
+        </member>
+        <member name="M:Customer.API.Controllers.CustomerController.GetFullAdddress(System.Int32)">
+            <summary>
+            Get address for all users.
+            </summary>
+            <param name="userid">user detail.</param>
+            <returns>Ok.</returns>
+        </member>
+        <member name="T:Customer.API.Core.Model.User">
+            <summary>
+            User model.
+            </summary>
+        </member>
+        <member name="P:Customer.API.Core.Model.User.UserId">
+            <summary>
+            Gets or sets user id details.
+            </summary>
+        </member>
+        <member name="P:Customer.API.Core.Model.User.Name">
+            <summary>
+            Gets or sets Name detials.
+            </summary>
+        </member>
+        <member name="P:Customer.API.Core.Model.User.Email">
+            <summary>
+            Gets or sets Email detials.
+            </summary>
+        </member>
+    </members>
+</doc>
