@@ -43,6 +43,8 @@ namespace WebApplication1
                     setupActions.ReturnHttpNotAcceptable = true;
                 }
                 );
+
+            // postpresql addition
             services.AddEntityFrameworkNpgsql().AddDbContext<CustomerContext>
                 (
                 opt =>
@@ -67,8 +69,21 @@ namespace WebApplication1
                             Name = "MIT",
                             Url = new Uri("http://google.com"),
                         },
-                    }
-                    );
+                    });
+
+                setupAction.SwaggerDoc(
+                    "AddressOpenAPISpecification",
+                    new Microsoft.OpenApi.Models.OpenApiInfo()
+                    {
+                        Title = "Address API",
+                        Version = "1",
+                        Description = "First Address API build using Swagger/OPENAPI",
+                        License = new Microsoft.OpenApi.Models.OpenApiLicense()
+                        {
+                            Name = "MIT",
+                            Url = new Uri("http://google.com"),
+                        },
+                    });
 
                 //enable xml generation first from project properties -> build and then change change the path to just
                 //projectname.xml
@@ -95,6 +110,11 @@ namespace WebApplication1
             app.UseSwaggerUI(setupAction =>
             {
                 setupAction.SwaggerEndpoint("/swagger/CustomerOpenAPISpecification/swagger.json", "Customer API");
+                setupAction.SwaggerEndpoint("/swagger/AddressOpenAPISpecification/swagger.json", "Address API");
+
+                //custom swagger UI html page
+                setupAction.IndexStream = () => this.GetType().Assembly
+                 .GetManifestResourceStream("Customer.API.EmbeddedAssets.index.html");
                 setupAction.RoutePrefix = ""; // to mark the initial page as swagger page like localhost:8080/index.html
             }); // to generate UI for swagger json data
 

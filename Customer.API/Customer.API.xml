@@ -4,6 +4,24 @@
         <name>Customer.API</name>
     </assembly>
     <members>
+        <member name="M:Customer.API.Controllers.AddressController.Get">
+            <summary>
+            To get data.
+            </summary>
+            <returns>string array.</returns>
+            <remarks>
+            This is for fetching data for **Get** type
+            ```
+                Get /api/address
+                [
+                    {
+                        "get":"1234",
+                        "data":"167"
+                    }
+                ]
+            ```
+            </remarks>
+        </member>
         <member name="T:Customer.API.Controllers.CustomerController">
             <summary>
             Initializes a new instance of the <see cref="T:Customer.API.Controllers.CustomerController"/> class.
