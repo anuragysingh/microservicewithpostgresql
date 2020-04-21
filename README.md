@@ -21,3 +21,5 @@ In project enable this
 
 
 Microsoft.AspNetCore.Mvc.Versioning - A service API versioning library for Microsoft ASP.NET Core.
+
+Microsoft.AspNetCore.Mvc.Versioning.ApiExplorer - ASP.NET Core MVC API explorer functionality for discovering metadata such as the list of API-versioned controllers and actions, and their URLs and allowed HTTP methods.
