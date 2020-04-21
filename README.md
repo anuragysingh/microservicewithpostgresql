@@ -18,3 +18,6 @@ In project enable this
 <PropertyGroup>
  <IncludeOpenAPIAnalyzers>true</IncludeOpenAPIAnalyzers>
 </PropertyGroup>
+
+
+Microsoft.AspNetCore.Mvc.Versioning - A service API versioning library for Microsoft ASP.NET Core.
