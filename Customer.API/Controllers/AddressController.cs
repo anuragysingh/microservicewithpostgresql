@@ -7,10 +7,13 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Customer.API.Controllers
 {
-    [Route("api/[controller]")]
     [ApiController]
+    [Produces("application/json", "application/xml")]
+    [Route("api/v{version:apiversion}/[controller]")]
+    [ApiVersion("2.0")]
+    
     [ProducesResponseType(StatusCodes.Status200OK)]
-    [ApiExplorerSettings(GroupName = "AddressOpenAPISpecification")]
+    //[ApiExplorerSettings(GroupName = "AddressOpenAPISpecification")]
     public class AddressController : ControllerBase
     {
         // GET: api/Address

@@ -1,7 +1,9 @@
 namespace WebApplication1
 {
     using System;
+    using System.Collections.Generic;
     using System.IO;
+    using System.Linq;
     using System.Reflection;
     using Customer.API.Core;
     using Customer.API.Persistence;
@@ -9,11 +11,15 @@ namespace WebApplication1
     using Microsoft.AspNetCore.Hosting;
     using Microsoft.AspNetCore.Http;
     using Microsoft.AspNetCore.Mvc;
+    using Microsoft.AspNetCore.Mvc.Abstractions;
+    using Microsoft.AspNetCore.Mvc.ApiExplorer;
     using Microsoft.AspNetCore.Mvc.Formatters;
+    using Microsoft.AspNetCore.Mvc.Versioning;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Hosting;
+    using Swashbuckle.AspNetCore.SwaggerGen;
 
     public class Startup
     {
@@ -22,14 +28,12 @@ namespace WebApplication1
             Configuration = configuration;
         }
 
-#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
         public IConfiguration Configuration { get; }
-#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddControllers(
+            services.AddMvc(
                 setupActions =>
                 {
                     // adding swagger documentation to response type to all the controllers
@@ -54,15 +58,60 @@ namespace WebApplication1
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddScoped<IUser, CustomerRepository>();
 
+            //for api versioning
+            services.AddVersionedApiExplorer(
+                setup =>
+                {
+                    setup.GroupNameFormat = "'v'VV";
+                    setup.SubstituteApiVersionInUrl = true;
+                });
+
+            services.AddApiVersioning(setupAction =>
+            {
+                setupAction.AssumeDefaultVersionWhenUnspecified = true;
+                setupAction.DefaultApiVersion = new ApiVersion(1, 0);
+                setupAction.ReportApiVersions = true;
+
+            });
+
+            var apiVersionDescriptionProvider = services.BuildServiceProvider().GetService<IApiVersionDescriptionProvider>();
+
             //swagger addition
             services.AddSwaggerGen(setupAction =>
             {
-                setupAction.SwaggerDoc(
-                    "CustomerOpenAPISpecification",
+                // api versioning
+                setupAction.DocInclusionPredicate((documentName, apiDescription) =>
+                {
+                    var actionApiVersionModel = apiDescription.ActionDescriptor
+                    .GetApiVersionModel(ApiVersionMapping.Explicit | ApiVersionMapping.Implicit);
+
+                    if (actionApiVersionModel == null)
+                    {
+                        return true;
+                    }
+
+                    if (actionApiVersionModel.DeclaredApiVersions.Any())
+                    {
+                        //actionApiVersionModel.DeclaredApiVersions.Any(v =>
+                        //Console.WriteLine(v));
+
+                        // note: add 'v' for version as suffix to api specification name
+                        return actionApiVersionModel.DeclaredApiVersions.Any(v =>
+                        $"AdventripOpenAPISpecificationv{v.ToString()}" == documentName);
+                    }
+
+                    return actionApiVersionModel.ImplementedApiVersions.Any(v =>
+                        $"AdventripOpenAPISpecificationv{v.ToString()}" == documentName);
+                });
+
+                foreach (var description in apiVersionDescriptionProvider.ApiVersionDescriptions)
+                {
+                    setupAction.SwaggerDoc(
+                    $"AdventripOpenAPISpecification{description.GroupName}",
                     new Microsoft.OpenApi.Models.OpenApiInfo()
                     {
-                        Title = "Customer API",
-                        Version = "1",
+                        Title = "Adventrip API",
+                        Version = description.ApiVersion.ToString(),
                         Description = "First Customer API build using Swagger/OPENAPI",
                         License = new Microsoft.OpenApi.Models.OpenApiLicense()
                         {
@@ -70,20 +119,24 @@ namespace WebApplication1
                             Url = new Uri("http://google.com"),
                         },
                     });
+                }
 
-                setupAction.SwaggerDoc(
-                    "AddressOpenAPISpecification",
-                    new Microsoft.OpenApi.Models.OpenApiInfo()
-                    {
-                        Title = "Address API",
-                        Version = "1",
-                        Description = "First Address API build using Swagger/OPENAPI",
-                        License = new Microsoft.OpenApi.Models.OpenApiLicense()
-                        {
-                            Name = "MIT",
-                            Url = new Uri("http://google.com"),
-                        },
-                    });
+                
+                
+
+                //setupAction.SwaggerDoc(
+                //    "AddressOpenAPISpecification",
+                //    new Microsoft.OpenApi.Models.OpenApiInfo()
+                //    {
+                //        Title = "Address API",
+                //        Version = "1",
+                //        Description = "First Address API build using Swagger/OPENAPI",
+                //        License = new Microsoft.OpenApi.Models.OpenApiLicense()
+                //        {
+                //            Name = "MIT",
+                //            Url = new Uri("http://google.com"),
+                //        },
+                //    });
 
                 //enable xml generation first from project properties -> build and then change change the path to just
                 //projectname.xml
@@ -92,11 +145,10 @@ namespace WebApplication1
                 string xmlCommentsFileFullPath = Path.Join(AppContext.BaseDirectory, xmlCommentsFileName);
                 setupAction.IncludeXmlComments(xmlCommentsFileFullPath);
             });
-            
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IApiVersionDescriptionProvider apiVersionDescriptionProvider)
         {
             if (env.IsDevelopment())
             {
@@ -106,11 +158,17 @@ namespace WebApplication1
             app.UseHttpsRedirection();
 
             //swagger
+            app.UseApiVersioning();
             app.UseSwagger(); // to generate json format api
             app.UseSwaggerUI(setupAction =>
             {
-                setupAction.SwaggerEndpoint("/swagger/CustomerOpenAPISpecification/swagger.json", "Customer API");
-                setupAction.SwaggerEndpoint("/swagger/AddressOpenAPISpecification/swagger.json", "Address API");
+                foreach(var description in apiVersionDescriptionProvider.ApiVersionDescriptions)
+                {
+                    setupAction.SwaggerEndpoint($"/swagger/AdventripOpenAPISpecification{description.GroupName}/swagger.json", description.GroupName.ToUpperInvariant());
+                }
+
+                
+                //setupAction.SwaggerEndpoint("/swagger/AddressOpenAPISpecification/swagger.json", "Address API");
 
                 //custom swagger UI html page
                 setupAction.IndexStream = () => this.GetType().Assembly

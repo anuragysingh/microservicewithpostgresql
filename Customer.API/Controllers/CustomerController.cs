@@ -15,12 +15,13 @@ namespace Customer.API.Controllers
     /// Initializes a new instance of the <see cref="CustomerController"/> class.
     /// </summary>
     [ApiController]
-    [Route("api/[controller]")]
     [Produces("application/json", "application/xml")]
-    [ApiExplorerSettings(GroupName = "CustomerOpenAPISpecification")] // for specifiying or grouping api endpoints in swagger
+    [Route("api/v{version:apiversion}/[controller]")]
+    [ApiVersion("1.0")]
+    //[ApiExplorerSettings(GroupName = "CustomerOpenAPISpecification")] // for specifiying or grouping api endpoints in swagger
     //for specific controller level response type for swagger documentation
     //[ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    [ApiConventionType(typeof(DefaultApiConventions))]// use this in case of mentioning default documentation for swagger
+    //[ApiConventionType(typeof(DefaultApiConventions))]// use this in case of mentioning default documentation for swagger
     public class CustomerController : ControllerBase
     {
         private readonly IUser _user;
