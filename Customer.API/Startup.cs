@@ -19,6 +19,7 @@ namespace WebApplication1
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Hosting;
+    using Microsoft.OpenApi.Models;
     using Swashbuckle.AspNetCore.SwaggerGen;
 
     public class Startup
@@ -79,6 +80,25 @@ namespace WebApplication1
             //swagger addition
             services.AddSwaggerGen(setupAction =>
             {
+                setupAction.AddSecurityDefinition("basicAuth", new Microsoft.OpenApi.Models.OpenApiSecurityScheme()
+                {
+                    Type = Microsoft.OpenApi.Models.SecuritySchemeType.Http,
+                    Scheme = "basic",
+                    Description = "Enter username and password token to validate the api"
+                });
+
+                setupAction.AddSecurityRequirement(new Microsoft.OpenApi.Models.OpenApiSecurityRequirement
+                {
+                    {
+                        new OpenApiSecurityScheme
+                        {
+                            Reference = new OpenApiReference
+                            {
+                                Type= ReferenceType.SecurityScheme,
+                                Id="basicAuth" }
+                        }, new List<string>() }                    
+                });
+
                 // api versioning
                 setupAction.DocInclusionPredicate((documentName, apiDescription) =>
                 {
