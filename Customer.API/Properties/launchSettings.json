@@ -20,7 +20,7 @@
     "CustomerAPI": {
       "commandName": "Project",
       "launchBrowser": true,
-      "launchUrl": "index.html",
+      "launchUrl": "health/ready",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       },

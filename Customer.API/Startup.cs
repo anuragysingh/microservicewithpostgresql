@@ -1,13 +1,17 @@
-namespace WebApplication1
+namespace AdventureTrip
 {
     using System;
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
     using System.Reflection;
+    using System.Threading.Tasks;
     using Customer.API.Core;
+    using Customer.API.HealthCheckQueuePublisher;
     using Customer.API.Persistence;
+    using Customer.API.QueueMessage;
     using Microsoft.AspNetCore.Builder;
+    using Microsoft.AspNetCore.Diagnostics.HealthChecks;
     using Microsoft.AspNetCore.Hosting;
     using Microsoft.AspNetCore.Http;
     using Microsoft.AspNetCore.Mvc;
@@ -18,8 +22,11 @@ namespace WebApplication1
     using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
+    using Microsoft.Extensions.Diagnostics.HealthChecks;
     using Microsoft.Extensions.Hosting;
     using Microsoft.OpenApi.Models;
+    using Newtonsoft.Json.Linq;
+    using Npgsql;
     using Swashbuckle.AspNetCore.SwaggerGen;
 
     public class Startup
@@ -96,7 +103,7 @@ namespace WebApplication1
                             {
                                 Type= ReferenceType.SecurityScheme,
                                 Id="basicAuth" }
-                        }, new List<string>() }                    
+                        }, new List<string>() }
                 });
 
                 // api versioning
@@ -141,8 +148,8 @@ namespace WebApplication1
                     });
                 }
 
-                
-                
+
+
 
                 //setupAction.SwaggerDoc(
                 //    "AddressOpenAPISpecification",
@@ -165,6 +172,26 @@ namespace WebApplication1
                 string xmlCommentsFileFullPath = Path.Join(AppContext.BaseDirectory, xmlCommentsFileName);
                 setupAction.IncludeXmlComments(xmlCommentsFileFullPath);
             });
+
+            services.AddHealthChecks()
+                .AddNpgSql(Configuration.GetConnectionString("PostGreConnection"), failureStatus: HealthStatus.Unhealthy, tags: new[] { "ready" })
+                // if api is dependend on other api can check for that api health status using below code
+                .AddUrlGroup(new Uri(
+                    Configuration.GetSection("URL").GetSection("BaseURL").Value),
+                    "Web API health check",
+                    HealthStatus.Degraded,
+                    timeout: new TimeSpan(0, 0, 5),
+                    tags: new[] { "ready" }
+                    );
+
+            // usually not required, in needs to customize publisher check then use below
+            services.Configure<HealthCheckPublisherOptions>(options =>
+            {
+                options.Delay = TimeSpan.FromSeconds(5);
+            });
+
+            services.AddSingleton<IHealthCheckPublisher, HealthCheckQueuePublisher>();
+            services.AddTransient<IQueueMessage, RabbitMQQueueMessage>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -182,12 +209,12 @@ namespace WebApplication1
             app.UseSwagger(); // to generate json format api
             app.UseSwaggerUI(setupAction =>
             {
-                foreach(var description in apiVersionDescriptionProvider.ApiVersionDescriptions)
+                foreach (var description in apiVersionDescriptionProvider.ApiVersionDescriptions)
                 {
                     setupAction.SwaggerEndpoint($"/swagger/AdventripOpenAPISpecification{description.GroupName}/swagger.json", description.GroupName.ToUpperInvariant());
                 }
 
-                
+
                 //setupAction.SwaggerEndpoint("/swagger/AddressOpenAPISpecification/swagger.json", "Address API");
 
                 //custom swagger UI html page
@@ -203,7 +230,61 @@ namespace WebApplication1
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
+                //form endpoint and also to customize httpstatus code since unhealty will also return 200 as status code
+                endpoints.MapHealthChecks("/health/ready", new HealthCheckOptions
+                {
+                    ResultStatusCodes =
+                    {
+                        [HealthStatus.Healthy] = StatusCodes.Status200OK,
+                        [HealthStatus.Degraded] = StatusCodes.Status500InternalServerError,
+                        [HealthStatus.Unhealthy] = StatusCodes.Status503ServiceUnavailable
+                    },
+                    ResponseWriter = WriteHealthCheckReadyResponse,
+                    Predicate = (check) => check.Tags.Contains("ready"), // show tags which are ready
+                    AllowCachingResponses = false
+                });
+                // endpoints can also be configured for autorization and cors;
+                // .RequireAuthorization("HealthCheckPolicy").RequireCors()
+
+                // contains only overall status of the heath so its faster
+                endpoints.MapHealthChecks("/health/live", new HealthCheckOptions
+                {
+                    ResponseWriter = WriteHealthCheckLiveResponse,
+                    Predicate = (check) => check.Tags.Contains("ready"), // show tags which are not ready
+                    AllowCachingResponses = false
+                });
             });
+        }
+
+        private Task WriteHealthCheckLiveResponse(HttpContext httpContext, HealthReport result)
+        {
+            httpContext.Response.ContentType = "application/json";
+
+            var json = new JObject(
+                new JProperty("OverallStatus", result.Status.ToString()),
+                new JProperty("TotalChecksDuration", result.TotalDuration.TotalSeconds.ToString("0.0.00")));
+
+            return httpContext.Response.WriteAsync(json.ToString(Newtonsoft.Json.Formatting.Indented));
+        }
+
+        // to customize http response of health status as json
+        private Task WriteHealthCheckReadyResponse(HttpContext httpContext, HealthReport result)
+        {
+            httpContext.Response.ContentType = "application/json";
+
+            var json = new JObject(
+                new JProperty("OverallStatus", result.Status.ToString()),
+                new JProperty("TotalChecksDuration", result.TotalDuration.TotalSeconds.ToString("0.0.00")),
+                new JProperty("DependencyHealtChecks", new JObject(result.Entries.Select(dicItem =>
+                    new JProperty(dicItem.Key, new JObject(
+                        new JProperty("Status", dicItem.Value.Status.ToString()),
+                        new JProperty("Duration", dicItem.Value.Duration.TotalSeconds.ToString("0.0.00")),
+                         new JProperty("Exception", dicItem.Value.Exception?.Message)
+                        ))
+                )))
+                );
+
+            return httpContext.Response.WriteAsync(json.ToString(Newtonsoft.Json.Formatting.Indented));
         }
     }
 }

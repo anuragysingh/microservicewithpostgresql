@@ -17,6 +17,9 @@ RUN dotnet build "WebApplication1.csproj" -c Release -o /app/build
 FROM build AS publish
 RUN dotnet publish "WebApplication1.csproj" -c Release -o /app/publish
 
+#Health check for api so that docker image can be updated with the status
+HEALTHCHECK CMD curl -f https://localhost:5001/health/ready || exit 1
+
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
