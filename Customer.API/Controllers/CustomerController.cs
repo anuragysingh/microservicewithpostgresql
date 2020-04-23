@@ -4,12 +4,14 @@
 
 namespace Customer.API.Controllers
 {
+    using System;
     using System.Threading.Tasks;
     using Customer.API.Core;
     using Customer.API.Core.Model;
     using Customer.API.ViewModel;
     using Microsoft.AspNetCore.Http;
     using Microsoft.AspNetCore.Mvc;
+    using Microsoft.Extensions.Logging;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="CustomerController"/> class.
@@ -27,16 +29,18 @@ namespace Customer.API.Controllers
     {
         private readonly IUser _user;
         private readonly IUnitOfWork _unitOfWork;
+        private readonly ILogger _logger;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CustomerController"/> class.
         /// </summary>
         /// <param name="user">user detail.</param>
         /// <param name="unitOfWork">unit of work detail.</param>
-        public CustomerController(IUser user, IUnitOfWork unitOfWork)
+        public CustomerController(IUser user, IUnitOfWork unitOfWork, ILoggerFactory loggerfactory)
         {
             this._user = user;
             this._unitOfWork = unitOfWork;
+            this._logger = loggerfactory.CreateLogger("CustomerAPI"); // note space is not allowed
         }
 
         /// <summary>
@@ -46,15 +50,21 @@ namespace Customer.API.Controllers
         [HttpGet]
         public async Task<ActionResult<User>> GetData()
         {
-            var data = await this._user.GetAllUsersAsync();
-            if (data.Count > 0)
+            this._logger.LogInformation(message: "GetData is invoked");
+            try
             {
-                return this.Ok(data);
+                var data = await this._user.GetAllUsersAsync();
+                if (data.Count > 0)
+                {
+                    return this.Ok(data);
+                }
             }
-            else
+            catch(Exception err)
             {
-                return BadRequest();
+                this._logger.LogError("API failure" , err.Message);
             }
+
+            return BadRequest();
         }
 
         /// <summary>
