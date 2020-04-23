@@ -9,7 +9,8 @@ namespace Customer.API.Controllers
 {
     [ApiController]
     [Produces("application/json", "application/xml")]
-    [Route("api/v{version:apiversion}/[controller]")]
+    //[Route("api/v{version:apiversion}/[controller]")] //for api versioning according to URI - not recommended approach
+    [Route("api/[controller]")]
     [ApiVersion("2.0")]
     
     [ProducesResponseType(StatusCodes.Status200OK)]

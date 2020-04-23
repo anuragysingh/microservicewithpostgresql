@@ -71,7 +71,7 @@ namespace AdventureTrip
                 setup =>
                 {
                     setup.GroupNameFormat = "'v'VV";
-                    setup.SubstituteApiVersionInUrl = true;
+                    //setup.SubstituteApiVersionInUrl = true;
                 });
 
             services.AddApiVersioning(setupAction =>
@@ -79,7 +79,9 @@ namespace AdventureTrip
                 setupAction.AssumeDefaultVersionWhenUnspecified = true;
                 setupAction.DefaultApiVersion = new ApiVersion(1, 0);
                 setupAction.ReportApiVersions = true;
-
+                setupAction.ApiVersionReader = ApiVersionReader.Combine(
+                    new HeaderApiVersionReader("x-version"),
+                    new QueryStringApiVersionReader("ver"));
             });
 
             var apiVersionDescriptionProvider = services.BuildServiceProvider().GetService<IApiVersionDescriptionProvider>();

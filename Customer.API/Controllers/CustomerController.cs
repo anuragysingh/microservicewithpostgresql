@@ -16,7 +16,8 @@ namespace Customer.API.Controllers
     /// </summary>
     [ApiController]
     [Produces("application/json", "application/xml")]
-    [Route("api/v{version:apiversion}/[controller]")]
+    //[Route("api/v{version:apiversion}/[controller]")] //for api versioning according to URI - not recommended approach
+    [Route("api/[controller]")]
     [ApiVersion("1.0")]
     //[ApiExplorerSettings(GroupName = "CustomerOpenAPISpecification")] // for specifiying or grouping api endpoints in swagger
     //for specific controller level response type for swagger documentation
