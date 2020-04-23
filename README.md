@@ -23,3 +23,12 @@ Following Nuget packages to be installed:
 # 3. Health checks:
      a. AspNetCore.HealthChecks.NpgSql - HealthChecks.NpgSql is a health check for Postgress Sql.
      b. AspNetCore.HealthChecks.Uris - HealthChecks.Uris is a simple health check package for Uri groups.
+     
+# 4. Hosting in IIS
+     https://docs.microsoft.com/en-us/aspnet/core/host-and-deploy/iis/?view=aspnetcore-3.1#install-the-net-core-hosting-bundle
+
+# 5. SQL related
+     a. script-migration - for generating sql scripts (for prod)
+     b. add-migration - for generating new migration
+     c. update-database - to reflect latest migration in db
+     d. remove-migration - for removing changes
