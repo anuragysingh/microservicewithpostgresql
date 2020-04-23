@@ -33,7 +33,7 @@ Following Nuget packages to be installed:
      c. update-database - to reflect latest migration in db
      d. remove-migration - for removing changes
      
-# 6. Logging using Serilog
+# 6. Logging using Serilog along with changes in appsettings.json file
      a. Refer to: https://github.com/serilog/serilog-aspnetcore
      b. Serilog.AspNetCore - Serilog support for ASP.NET Core logging
      c. Serilog.Settings.Configuration - Microsoft.Extensions.Configuration (appsettings.json) support for Serilog.
