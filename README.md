@@ -34,7 +34,7 @@ Following Nuget packages to be installed:
      d. remove-migration - for removing changes
      
 # 6. Logging using Serilog along with changes in appsettings.json file
-     a. Refer to: https://github.com/serilog/serilog-aspnetcore
+     a. Refer to: https://github.com/serilog/serilog-aspnetcore and https://github.com/serilog/serilog-sinks-file (for file rolling)
      b. Serilog.AspNetCore - Serilog support for ASP.NET Core logging
      c. Serilog.Settings.Configuration - Microsoft.Extensions.Configuration (appsettings.json) support for Serilog.
      d. Serilog.Sinks.File - Write Serilog events to text files in plain or JSON format.
