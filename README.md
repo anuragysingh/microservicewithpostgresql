@@ -38,3 +38,6 @@ Following Nuget packages to be installed:
      b. Serilog.AspNetCore - Serilog support for ASP.NET Core logging
      c. Serilog.Settings.Configuration - Microsoft.Extensions.Configuration (appsettings.json) support for Serilog.
      d. Serilog.Sinks.File - Write Serilog events to text files in plain or JSON format.
+  
+# 7 . Caching
+     a. Microsoft.Extensions.Caching.Memory - In-memory cache implementation of Microsoft.Extensions.Caching.Memory.IMemoryCache.
