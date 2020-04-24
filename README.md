@@ -39,5 +39,7 @@ Following Nuget packages to be installed:
      c. Serilog.Settings.Configuration - Microsoft.Extensions.Configuration (appsettings.json) support for Serilog.
      d. Serilog.Sinks.File - Write Serilog events to text files in plain or JSON format.
   
-# 7 . Caching
+# 7. Caching
      a. Microsoft.Extensions.Caching.Memory - In-memory cache implementation of Microsoft.Extensions.Caching.Memory.IMemoryCache.
+     
+# 8. Authentication can be done using Custom middleware
