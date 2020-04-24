@@ -22,7 +22,13 @@ namespace AdventureTrip
         {
             Log.Logger = new LoggerConfiguration()
                 .ReadFrom.Configuration(Configuration)
-                .WriteTo.File(new JsonFormatter(), path: Configuration.GetSection("Serilog").GetSection("LogFileLocation").Value, shared: true)
+                .WriteTo.File(
+                new JsonFormatter(),
+                path: Configuration.GetSection("Serilog").GetSection("LogFile").Value,
+                rollingInterval: RollingInterval.Day,
+                fileSizeLimitBytes: 512, // file size for that interval
+                rollOnFileSizeLimit: true, // new file to be created once limit is reached with name as name_001,_002
+                shared: true)
                 .CreateLogger();
 
             try

@@ -50,7 +50,12 @@ namespace Customer.API.Controllers
         [HttpGet]
         public async Task<ActionResult<User>> GetData()
         {
-            this._logger.LogInformation(message: "GetData is invoked");
+            throw new Exception();
+            string item1 = "hello";
+            string item2 = "sample";
+            // adds item 1 and 2 value to serilog properties section
+            this._logger.LogInformation(message: "GetData is invoked for {item1} and {item2}", item1, item2);
+            
             try
             {
                 var data = await this._user.GetAllUsersAsync();

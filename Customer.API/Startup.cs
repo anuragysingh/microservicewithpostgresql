@@ -8,6 +8,7 @@ namespace AdventureTrip
     using System.Threading.Tasks;
     using Customer.API.Core;
     using Customer.API.HealthCheckQueuePublisher;
+    using Customer.API.Middlewares;
     using Customer.API.Persistence;
     using Customer.API.QueueMessage;
     using Microsoft.AspNetCore.Builder;
@@ -205,6 +206,8 @@ namespace AdventureTrip
             {
                 app.UseDeveloperExceptionPage();
             }
+
+            app.UseMiddleware<ExceptionMiddleware>();
 
             app.UseHttpsRedirection();
 
