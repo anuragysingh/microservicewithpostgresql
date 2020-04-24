@@ -11,6 +11,7 @@ namespace Customer.API.Controllers
     using Customer.API.ViewModel;
     using Microsoft.AspNetCore.Http;
     using Microsoft.AspNetCore.Mvc;
+    using Microsoft.Extensions.Caching.Memory;
     using Microsoft.Extensions.Logging;
 
     /// <summary>
@@ -29,6 +30,7 @@ namespace Customer.API.Controllers
     {
         private readonly IUser _user;
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IMemoryCache memoryCache;
         private readonly ILogger _logger;
 
         /// <summary>
@@ -36,10 +38,13 @@ namespace Customer.API.Controllers
         /// </summary>
         /// <param name="user">user detail.</param>
         /// <param name="unitOfWork">unit of work detail.</param>
-        public CustomerController(IUser user, IUnitOfWork unitOfWork, ILoggerFactory loggerfactory)
+        /// <param name="loggerfactory"></param>
+        /// <param name="memoryCache"></param>
+        public CustomerController(IUser user, IUnitOfWork unitOfWork, ILoggerFactory loggerfactory, IMemoryCache memoryCache)
         {
             this._user = user;
             this._unitOfWork = unitOfWork;
+            this.memoryCache = memoryCache;
             this._logger = loggerfactory.CreateLogger("CustomerAPI"); // note space is not allowed
         }
 
@@ -50,7 +55,7 @@ namespace Customer.API.Controllers
         [HttpGet]
         public async Task<ActionResult<User>> GetData()
         {
-            throw new Exception();
+            
             string item1 = "hello";
             string item2 = "sample";
             // adds item 1 and 2 value to serilog properties section
@@ -70,6 +75,27 @@ namespace Customer.API.Controllers
             }
 
             return BadRequest();
+        }
+
+        [HttpGet("{cache}")]
+        public ActionResult<User> GetCacheData()
+        {
+            //User cacheEntry;
+
+            var userEntry = memoryCache.GetOrCreate("time", entry =>
+            {
+                var cacheEntry = new User
+                {
+                    Email = "anurag@gmail.com",
+                    Name = DateTime.Now.ToString()
+                };
+
+                entry.SetSlidingExpiration(TimeSpan.FromMinutes(1));
+                entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(1);
+                return cacheEntry;
+            });
+
+            return Ok(userEntry);
         }
 
         /// <summary>

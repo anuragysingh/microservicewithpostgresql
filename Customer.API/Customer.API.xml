@@ -27,12 +27,14 @@
             Initializes a new instance of the <see cref="T:Customer.API.Controllers.CustomerController"/> class.
             </summary>
         </member>
-        <member name="M:Customer.API.Controllers.CustomerController.#ctor(Customer.API.Core.IUser,Customer.API.Core.IUnitOfWork,Microsoft.Extensions.Logging.ILoggerFactory)">
+        <member name="M:Customer.API.Controllers.CustomerController.#ctor(Customer.API.Core.IUser,Customer.API.Core.IUnitOfWork,Microsoft.Extensions.Logging.ILoggerFactory,Microsoft.Extensions.Caching.Memory.IMemoryCache)">
             <summary>
             Initializes a new instance of the <see cref="T:Customer.API.Controllers.CustomerController"/> class.
             </summary>
             <param name="user">user detail.</param>
             <param name="unitOfWork">unit of work detail.</param>
+            <param name="loggerfactory"></param>
+            <param name="memoryCache"></param>
         </member>
         <member name="M:Customer.API.Controllers.CustomerController.GetData">
             <summary>

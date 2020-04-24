@@ -197,6 +197,9 @@ namespace AdventureTrip
 
             services.AddSingleton<IHealthCheckPublisher, HealthCheckQueuePublisher>();
             services.AddTransient<IQueueMessage, RabbitMQQueueMessage>();
+
+            //caching
+            services.AddMemoryCache();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
