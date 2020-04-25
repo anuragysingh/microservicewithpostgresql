@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Collections.Generic;
 
 namespace Customer.API.Controllers
 {
@@ -12,7 +9,7 @@ namespace Customer.API.Controllers
     //[Route("api/v{version:apiversion}/[controller]")] //for api versioning according to URI - not recommended approach
     [Route("api/[controller]")]
     [ApiVersion("2.0")]
-    
+
     [ProducesResponseType(StatusCodes.Status200OK)]
     //[ApiExplorerSettings(GroupName = "AddressOpenAPISpecification")]
     public class AddressController : ControllerBase

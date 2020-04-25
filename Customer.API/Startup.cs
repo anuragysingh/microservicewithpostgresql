@@ -1,11 +1,5 @@
 namespace AdventureTrip
 {
-    using System;
-    using System.Collections.Generic;
-    using System.IO;
-    using System.Linq;
-    using System.Reflection;
-    using System.Threading.Tasks;
     using Customer.API.Core;
     using Customer.API.HealthCheckQueuePublisher;
     using Customer.API.Middlewares;
@@ -25,11 +19,14 @@ namespace AdventureTrip
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Diagnostics.HealthChecks;
     using Microsoft.Extensions.Hosting;
-    using Microsoft.Extensions.Logging;
     using Microsoft.OpenApi.Models;
     using Newtonsoft.Json.Linq;
-    using Npgsql;
-    using Swashbuckle.AspNetCore.SwaggerGen;
+    using System;
+    using System.Collections.Generic;
+    using System.IO;
+    using System.Linq;
+    using System.Reflection;
+    using System.Threading.Tasks;
 
     public class Startup
     {
@@ -44,6 +41,8 @@ namespace AdventureTrip
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddResponseCaching();
+
             services.AddMvc(
                 setupActions =>
                 {
@@ -56,6 +55,13 @@ namespace AdventureTrip
 
                     // in case a different response type is requested the output will return media type not accepted
                     setupActions.ReturnHttpNotAcceptable = true;
+
+                    // response caching profile creation
+                    setupActions.CacheProfiles.Add("30SecondsCacheProfile", new CacheProfile()
+                    {
+                        Duration = 30
+                    });
+
                 }
                 );
 
@@ -211,6 +217,8 @@ namespace AdventureTrip
             }
 
             app.UseMiddleware<ExceptionMiddleware>();
+
+            app.UseResponseCaching();
 
             app.UseHttpsRedirection();
 

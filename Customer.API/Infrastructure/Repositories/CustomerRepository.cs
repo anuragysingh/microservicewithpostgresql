@@ -42,7 +42,7 @@ namespace Customer.API.Persistence
 
         public async Task<List<User>> GetAllUsersAsync()
         {
-            return this._dbContext.Users.OrderBy(name=>name.Name).ToList();
+            return this._dbContext.Users.OrderBy(name => name.Name).ToList();
         }
 
         public List<UserAddress> GetFullUserDetails(int userid)
@@ -60,7 +60,7 @@ namespace Customer.API.Persistence
                           };
             List<UserAddress> usrAdr = new List<UserAddress>();
 
-            foreach(var userDet in address)
+            foreach (var userDet in address)
             {
                 usrAdr.Add(new UserAddress
                 {

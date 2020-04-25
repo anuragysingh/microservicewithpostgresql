@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 namespace Customer.API.Persistence
 {
-    public class UnitOfWork: IUnitOfWork
+    public class UnitOfWork : IUnitOfWork
     {
         CustomerContext _dbContext;
         public UnitOfWork(CustomerContext context)

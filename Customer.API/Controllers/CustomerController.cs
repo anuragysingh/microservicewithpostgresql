@@ -4,8 +4,6 @@
 
 namespace Customer.API.Controllers
 {
-    using System;
-    using System.Threading.Tasks;
     using Customer.API.Core;
     using Customer.API.Core.Model;
     using Customer.API.ViewModel;
@@ -13,6 +11,8 @@ namespace Customer.API.Controllers
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.Extensions.Caching.Memory;
     using Microsoft.Extensions.Logging;
+    using System;
+    using System.Threading.Tasks;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="CustomerController"/> class.
@@ -53,14 +53,16 @@ namespace Customer.API.Controllers
         /// </summary>
         /// <returns>Ok.</returns>
         [HttpGet]
+        [ResponseCache(CacheProfileName = "30SecondsCacheProfile")]
+        // Action level response cache overrwrites cache at Controller level
         public async Task<ActionResult<User>> GetData()
         {
-            
+
             string item1 = "hello";
             string item2 = "sample";
             // adds item 1 and 2 value to serilog properties section
             this._logger.LogInformation(message: "GetData is invoked for {item1} and {item2}", item1, item2);
-            
+
             try
             {
                 var data = await this._user.GetAllUsersAsync();
@@ -69,9 +71,9 @@ namespace Customer.API.Controllers
                     return this.Ok(data);
                 }
             }
-            catch(Exception err)
+            catch (Exception err)
             {
-                this._logger.LogError("API failure" , err.Message);
+                this._logger.LogError("API failure", err.Message);
             }
 
             return BadRequest();
