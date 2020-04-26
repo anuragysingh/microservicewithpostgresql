@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Moq;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using Xunit;
@@ -51,6 +52,5 @@ namespace Customer.API.Tests
         {
             Assert.Equal(first, second);
         }
-
     }
 }

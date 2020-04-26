@@ -62,5 +62,10 @@ namespace Customer.API.Controllers
         public void Delete(int id)
         {
         }
+
+        public bool IsValid()
+        {
+            return false;
+        }
     }
 }

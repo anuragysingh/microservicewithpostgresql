@@ -11,5 +11,6 @@ namespace Customer.API.Core
         Task<List<User>> GetAllUsersAsync();
         string AddAddress();
         List<UserAddress> GetFullUserDetails(int userid);
+        bool IsValidUser(string userid);
     }
 }

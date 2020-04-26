@@ -70,7 +70,23 @@ namespace Customer.API.Persistence
                     Address2 = userDet.Address2.ToString()
                 });
             }
-            return usrAdr;
+
+            // for testing purpose
+            List<UserAddress> usrAdrTest = new List<UserAddress>();
+                usrAdr.Add(new UserAddress
+                {
+                    UserName = "123"
+                });
+
+            if (this.IsValidUser(usrAdr[0].UserName))
+                return usrAdrTest;
+            else
+                return usrAdr;
+        }
+
+        public bool IsValidUser(string userid)
+        {
+            return false;
         }
     }
 }

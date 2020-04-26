@@ -63,12 +63,20 @@ namespace Customer.API.Controllers
             // adds item 1 and 2 value to serilog properties section
             this._logger.LogInformation(message: "GetData is invoked for {item1} and {item2}", item1, item2);
 
+            //throw new Exception();
             try
             {
                 var data = await this._user.GetAllUsersAsync();
                 if (data.Count > 0)
                 {
-                    return this.Ok(data);
+                    if (data[0].Email != null)
+                    {
+                        return this.Ok(data);
+                    }
+                    else
+                    {
+                        return NotFound();
+                    }
                 }
             }
             catch (Exception err)
@@ -138,6 +146,11 @@ namespace Customer.API.Controllers
             this._user.AddAddress();
             await this._unitOfWork.Complete();
             return Ok("ok");
+        }
+
+        public bool IsValidUser(string id)
+        {
+            return false;
         }
     }
 }

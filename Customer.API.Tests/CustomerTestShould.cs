@@ -1,11 +1,14 @@
 using Customer.API.Controllers;
 using Customer.API.Core;
+using Customer.API.Core.Model;
+using Customer.API.ViewModel;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 using System;
+using System.Collections.Generic;
 using Xunit;
 using Xunit.Abstractions;
 namespace Customer.API.Tests
@@ -26,6 +29,10 @@ namespace Customer.API.Tests
             this.loggerfactory = new NullLoggerFactory();
             this.memoryCache = new Mock<IMemoryCache>();
             this.customerController = new CustomerController(this.user.Object, this.unitOfWork.Object, loggerfactory, memoryCache.Object);
+
+            // event setup can be moved to the constructor
+            this.user.Setup(x => x.IsValidUser(It.IsAny<string>())).Throws(new Exception("new exception"));
+            this.user.Setup(x => x.IsValidUser(It.IsAny<string>())).Throws(new Exception("new exception"));
         }
 
         //Aserts against 
@@ -43,9 +50,101 @@ namespace Customer.API.Tests
         [Fact]       
         public void GetDataShouldNotBeEmpty()
         {
-            var result = this.customerController.GetData();
-            Console.Write(result.Result);
-            Assert.NotNull(result.Result);
+            var controller = this.customerController.GetData();
+
+            Assert.NotNull(controller);
         }
+
+        [Fact]
+        public void CheckForException()
+        {
+            this.user.Setup(x => x.IsValidUser(It.IsAny<string>())).Throws(new Exception("new exception"));
+
+            // if IsValidUser is called then throw an exception
+            var controller = this.customerController.GetData();
+
+            Assert.NotNull(controller);
+        }
+
+        [Fact]
+        public void MultipleMockTest()
+        {
+            this.user.SetupSequence(x => x.IsValidUser(It.IsAny<string>()))
+                .Throws(new Exception("new exception"))
+                .Returns(true);
+
+            // if IsValidUser is called then throw an exception
+            var controller = this.customerController.GetData();
+
+            Assert.NotNull(controller);
+        }
+
+        [Fact]
+        public void Return200AsResponseCode()
+        {
+            var controller = this.customerController.GetData();
+            //var result = Assert.IsType<ActionResult<User>>(controller.Result);
+
+            this.user.VerifyAll();
+            
+            Assert.IsType<ActionResult<User>>(controller.Result);
+        }
+
+        [Fact]
+        public void CustomMessageResponseCode()
+        {
+            var controller = this.customerController.GetData();
+            //var result = Assert.IsType<ActionResult<User>>(controller.Result);
+            this.user.Setup(x => x.IsValidUser(It.IsAny<string>())).Returns(() => false);
+            var data = this.user.Object;
+            this.user.Verify(x=>x.IsValidUser(It.IsAny<string>()), "IsValidIsNotNull");
+            
+        }
+
+        [Fact]
+        public void TimesAMetodToBeInvoked()
+        {
+            var controller = this.customerController.GetData();
+            //var result = Assert.IsType<ActionResult<User>>(controller.Result);
+            var data = this.user.Object;
+
+            //this.user.Verify(x => x.IsValidUser(It.IsNotNull<string>()), Times.Once);
+            // or
+            this.user.Verify(x => x.IsValidUser(It.IsNotNull<string>()), Times.Exactly(2));
+
+        }
+
+        [Fact]
+        public void CheckForResponseDataModel()
+        {
+            this.user.Setup(x => x.IsValidUser(It.IsAny<string>())).Returns(() => false);
+
+            //when GetData() is called and if it has IsValidUser() then above return will be called
+            // this return can be used to pass in fake object also
+            var controller = this.customerController.GetData(); 
+
+            var user2 = new User
+            {
+                Email = "123"
+            };
+
+            var result = Assert.IsType<ActionResult<User>>(controller.Result);
+
+            Assert.Same(user2, result);
+            
+        }
+
+        //[Fact]
+        //public void IsValid()
+        //{
+        //    //this.user.Setup(x => x.IsValidUser(It.IsAny<string>("x")))
+        //    //this.user.Setup(x => x.IsValidUser(It.Is<string>(number=>number.StartsWith("x"))))
+        //    //this.user.Setup(x => x.IsValidUser(It.IsIn("x","y","z")))
+        //    //this.user.Setup(x => x.IsValidUser(It.IsInRange("x", "y", Moq.Range.Inclusive)))
+        //    this.user.Setup(x => x.IsValidUser(It.IsRegex("[b-z]", System.Text.RegularExpressions.RegexOptions.None)))
+        //        .Returns(true);
+        //    var boolData = "x";
+        //    Assert.Equal("123", boolData);
+        //}
     }
 }
