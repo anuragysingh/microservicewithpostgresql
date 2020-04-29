@@ -43,3 +43,14 @@ Following Nuget packages to be installed:
      a. Microsoft.Extensions.Caching.Memory - In-memory cache implementation of Microsoft.Extensions.Caching.Memory.IMemoryCache.
      
 # 8. Authentication can be done using Custom middleware
+
+# 9. .NET core user secrets
+     In Visual studio go to Tools-> Command line-> Developer console
+          a. Go inside the specific project
+          Use below commands:
+
+          i. dotnet user-secrets - to list the commands
+          ii. dotnet user-secrets - to list all the secrets
+          iii. dotnet user-secrets init -  to initialize
+          iv. dotnet user-secrets set <keyname> "<value>"
+          v. dotnet user-secrets set <ConnectionString>:<keyname> "<value>" - this is for nested json creation
