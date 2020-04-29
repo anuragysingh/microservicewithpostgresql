@@ -216,6 +216,9 @@ namespace AdventureTrip
                 app.UseDeveloperExceptionPage();
             }
 
+            //use hsts if strict redirect to https is required
+            //app.UseHsts();
+
             app.UseMiddleware<ExceptionMiddleware>();
 
             app.UseResponseCaching();
