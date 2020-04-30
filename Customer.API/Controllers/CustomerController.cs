@@ -7,11 +7,13 @@ namespace Customer.API.Controllers
     using Customer.API.Core;
     using Customer.API.Core.Model;
     using Customer.API.ViewModel;
+    using Microsoft.AspNetCore.Cors;
     using Microsoft.AspNetCore.Http;
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.Extensions.Caching.Memory;
     using Microsoft.Extensions.Logging;
     using System;
+    using System.Net.Http;
     using System.Threading.Tasks;
 
     /// <summary>
@@ -26,6 +28,9 @@ namespace Customer.API.Controllers
     //for specific controller level response type for swagger documentation
     //[ProducesResponseType(StatusCodes.Status500InternalServerError)]
     //[ApiConventionType(typeof(DefaultApiConventions))]// use this in case of mentioning default documentation for swagger
+
+    // Enables CORS to specific controller which will overrwrite global cors policy
+    [EnableCors("PublicUrls")]
     public class CustomerController : ControllerBase
     {
         private readonly IUser _user;
@@ -40,11 +45,15 @@ namespace Customer.API.Controllers
         /// <param name="unitOfWork">unit of work detail.</param>
         /// <param name="loggerfactory"></param>
         /// <param name="memoryCache"></param>
-        public CustomerController(IUser user, IUnitOfWork unitOfWork, ILoggerFactory loggerfactory, IMemoryCache memoryCache)
+        public CustomerController(
+            IUser user, 
+            IUnitOfWork unitOfWork, 
+            ILoggerFactory loggerfactory, 
+            IMemoryCache memoryCache)
         {
             this._user = user;
             this._unitOfWork = unitOfWork;
-            this.memoryCache = memoryCache;
+            this.memoryCache = memoryCache ?? throw new ArgumentNullException(nameof(memoryCache));
             this._logger = loggerfactory.CreateLogger("CustomerAPI"); // note space is not allowed
         }
 
@@ -57,6 +66,7 @@ namespace Customer.API.Controllers
         // Action level response cache overrwrites cache at Controller level
         public async Task<ActionResult<User>> GetData()
         {
+            
 
             string item1 = "hello";
             string item2 = "sample";
@@ -119,7 +129,7 @@ namespace Customer.API.Controllers
         [Consumes("application/json")]
         [HttpGet("{userid}")]
         // call below api using "/api/customer/userid"
-        public ActionResult<UserAddress> GetFullAdddress(int userid)
+        public ActionResult<UserAddressDTO> GetFullAdddress(int userid)
         {
             if (userid != 0)
             {

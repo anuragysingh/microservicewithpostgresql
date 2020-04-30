@@ -10,7 +10,7 @@ namespace Customer.API.Core
         string AddCustomer();
         Task<List<User>> GetAllUsersAsync();
         string AddAddress();
-        List<UserAddress> GetFullUserDetails(int userid);
+        List<UserAddressDTO> GetFullUserDetails(int userid);
         bool IsValidUser(string userid);
     }
 }

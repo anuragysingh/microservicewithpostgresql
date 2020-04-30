@@ -1,6 +1,6 @@
 ﻿namespace Customer.API.ViewModel
 {
-    public class UserAddress
+    public class UserAddressDTO
     {
         public string UserName { get; set; }
         public string Email { get; set; }

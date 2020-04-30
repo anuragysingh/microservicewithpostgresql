@@ -41,9 +41,34 @@ namespace AdventureTrip
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            // cors for multiple url's
+            var allowedOrigins = Configuration.GetValue<string>("AllowedOrigins")?.Split(",") ?? new string[0];
+            // cors
+            services.AddCors(setupAction =>
+            {
+                // For all urls
+                setupAction.AddPolicy("AllowEverything", builder => builder.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod());
+                
+                // For specific url's
+                //setupAction.AddPolicy("AllowEverything", builder => builder.WithOrigins(allowedOrigins)
+                ////.AllowCredentials()
+                ////custom headers to be allowed
+                //.WithExposedHeaders("PageNo"));
+
+                // for sub domains url's
+                //setupAction.AddPolicy("AllowEverything", builder =>
+                //{
+                //    builder.WithOrigins("https://*.domain.com");
+                //    builder.SetIsOriginAllowedToAllowWildcardSubdomains();
+                //});
+
+                // for get and content-type headers only
+                setupAction.AddPolicy("PublicUrls", builder => builder.WithMethods("Get").WithHeaders("Content-Type"));
+            });
+
             services.AddResponseCaching();
 
-            services.AddMvc(
+            services.AddControllers(
                 setupActions =>
                 {
                     // adding swagger documentation to response type to all the controllers
@@ -73,6 +98,7 @@ namespace AdventureTrip
                 );
 
             services.AddScoped<IUnitOfWork, UnitOfWork>();
+            //services.AddScoped<ICustomerRepository, CustomerRepository>();
             services.AddScoped<IUser, CustomerRepository>();
 
             //for api versioning
@@ -204,8 +230,11 @@ namespace AdventureTrip
             services.AddSingleton<IHealthCheckPublisher, HealthCheckQueuePublisher>();
             services.AddTransient<IQueueMessage, RabbitMQQueueMessage>();
 
-            //caching
+            //caching using Imemory
             services.AddMemoryCache();
+
+            // using IHttpClientFactory for calling external url
+            services.AddHttpClient();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -216,8 +245,22 @@ namespace AdventureTrip
                 app.UseDeveloperExceptionPage();
             }
 
+            
+            // to use www root folder contents
+            // app.UseStaticFiles();
+
+            // use this in case of any custom headers. Can use custom middleware also
+            app.Use(async (context, next) =>
+            {
+                context.Response.Headers.Add("Content-Security-Policy", "none");
+                await next();
+            });
+
             //use hsts if strict redirect to https is required
             //app.UseHsts();
+
+           //use this to use global exception response
+          //  app.UseExceptionHandler(option=> { });
 
             app.UseMiddleware<ExceptionMiddleware>();
 
@@ -245,6 +288,8 @@ namespace AdventureTrip
             }); // to generate UI for swagger json data
 
             app.UseRouting();
+
+            app.UseCors("AllowEverything");
 
             app.UseAuthorization();
 

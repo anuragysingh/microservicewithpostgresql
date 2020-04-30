@@ -52,6 +52,9 @@ namespace AdventureTrip
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.UseStartup<Startup>();
+
+                    // to hide kestral web server info
+                    webBuilder.ConfigureKestrel(kestrel => kestrel.AddServerHeader = false);
                 })
             .UseSerilog();
     }

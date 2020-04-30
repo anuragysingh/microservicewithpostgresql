@@ -1,18 +1,25 @@
 ﻿using Customer.API.Core;
 using Customer.API.Core.Model;
 using Customer.API.ViewModel;
+using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
 using System.Threading.Tasks;
 
 namespace Customer.API.Persistence
 {
-    public class CustomerRepository : IUser
+    public class CustomerRepository : IUser, IDisposable
     {
         private CustomerContext _dbContext;
-        public CustomerRepository(CustomerContext dbContext)
+        private readonly IHttpClientFactory httpClientFactory;
+
+        public CustomerRepository(CustomerContext dbContext,
+            IHttpClientFactory httpClientFactory)
         {
-            this._dbContext = dbContext;
+            this._dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
+            this.httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
         }
 
         public string AddCustomer()
@@ -42,10 +49,19 @@ namespace Customer.API.Persistence
 
         public async Task<List<User>> GetAllUsersAsync()
         {
-            return this._dbContext.Users.OrderBy(name => name.Name).ToList();
+            // using httpclientfactory:
+            var httpClient = httpClientFactory.CreateClient();
+
+            var response = httpClient.GetAsync("url");
+            if (response.IsCompletedSuccessfully)
+            {
+                // return ok or action
+            }
+
+            return await this._dbContext.Users.OrderBy(name => name.Name).ToListAsync();
         }
 
-        public List<UserAddress> GetFullUserDetails(int userid)
+        public List<UserAddressDTO> GetFullUserDetails(int userid)
         {
             var address = from adrs in this._dbContext.Address
                           join usr in this._dbContext.Users
@@ -58,11 +74,11 @@ namespace Customer.API.Persistence
                               adrs.Address1,
                               adrs.Address2
                           };
-            List<UserAddress> usrAdr = new List<UserAddress>();
+            List<UserAddressDTO> usrAdr = new List<UserAddressDTO>();
 
             foreach (var userDet in address)
             {
-                usrAdr.Add(new UserAddress
+                usrAdr.Add(new UserAddressDTO
                 {
                     UserName = userDet.Name,
                     Email = userDet.Email,
@@ -72,8 +88,8 @@ namespace Customer.API.Persistence
             }
 
             // for testing purpose
-            List<UserAddress> usrAdrTest = new List<UserAddress>();
-                usrAdr.Add(new UserAddress
+            List<UserAddressDTO> usrAdrTest = new List<UserAddressDTO>();
+                usrAdr.Add(new UserAddressDTO
                 {
                     UserName = "123"
                 });
@@ -87,6 +103,17 @@ namespace Customer.API.Persistence
         public bool IsValidUser(string userid)
         {
             return false;
+        }
+
+        public void Dispose()
+        {
+            if (this._dbContext != null)
+            {
+                _dbContext.Dispose();
+                _dbContext = null;
+            }
+
+            GC.SuppressFinalize(this);
         }
     }
 }
